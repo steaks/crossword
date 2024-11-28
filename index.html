@@ -327,7 +327,9 @@
         document.querySelectorAll('.letter').forEach(input => {
             input.addEventListener('focus', function() {
                 setTimeout(() => {
-                    this.setSelectionRange(this.value.length, this.value.length);
+                    if (this.startSelection !== this.value.length) {
+                        this.setSelectionRange(this.value.length, this.value.length);
+                    }
                 }, 100);
             });
 
