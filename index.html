@@ -315,6 +315,18 @@
         </div>
     </div>
 
+    <div style="text-align: center; margin-top: 40px; margin-bottom: 40px;">
+        <h3 style="color: #2b3847; margin: 0 0 12px 0; font-family: 'Playfair Display', serif; font-size: 1.1em;">Keyboard Shortcuts</h3>
+        <div style="color: #666; line-height: 1.5; font-size: 1em;">
+            <div style="margin-bottom: 4px;">
+                <span style="color: #2d5a8e; font-weight: 500;">↑ ↓ ← →</span> Use arrow keys to navigate
+            </div>
+            <div>
+                <span style="color: #2d5a8e; font-weight: 500;">Backspace ⌫</span> to delete
+            </div>
+        </div>
+    </div>
+
     <div id="success-modal" class="modal" style="display: none;">
         <div class="modal-content">
             <div class="modal-body">
@@ -344,10 +356,12 @@
 
                 if (e.key === 'Backspace') {
                     if (this.value === '') {
-                        const prevInput = allInputs[currentIndex - 1];
-                        if (prevInput) {
-                            prevInput.focus();
-                        }
+                        setTimeout(() => {
+                            const prevInput = allInputs[currentIndex - 1];
+                            if (prevInput) {
+                                prevInput.focus();
+                            }
+                        }); 
                     }
                 } else if (e.key === 'ArrowRight') {
                     e.preventDefault(); // Prevent cursor movement
