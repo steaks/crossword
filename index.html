@@ -72,6 +72,7 @@
             box-sizing: border-box;
             background: transparent;
             color: #333;
+            caret-color: transparent;
         }
 
         input.letter:focus {
@@ -324,20 +325,10 @@
 
     <script>
         document.querySelectorAll('.letter').forEach(input => {
-            // Auto-advance to next input when a letter is entered
-            input.addEventListener('input', function(e) {
-                if (this.value.length === 1) {
-                    const allInputs = [...document.querySelectorAll('.letter')];
-                    const currentIndex = allInputs.indexOf(this);
-                    const nextInput = allInputs[currentIndex + 1];
-                    if (nextInput) {
-                        nextInput.focus();
-                    }
-                }
-                this.value = this.value.toUpperCase();
-                
-                // Check if puzzle is solved after each input
-                checkPuzzleSolved();
+            input.addEventListener('focus', function() {
+                setTimeout(() => {
+                    this.setSelectionRange(this.value.length, this.value.length);
+                }, 100);
             });
 
             // Handle backspace and arrow keys
@@ -349,77 +340,86 @@
                 let currentCol;
                 let nextInput;
 
-                switch(e.key) {
-                    case 'Backspace':
-                        if (this.value === '') {
-                            const prevInput = allInputs[currentIndex - 1];
-                            if (prevInput) {
-                                prevInput.focus();
-                            }
+                if (e.key === 'Backspace') {
+                    if (this.value === '') {
+                        const prevInput = allInputs[currentIndex - 1];
+                        if (prevInput) {
+                            prevInput.focus();
                         }
-                        break;
-                    case 'ArrowRight':
-                        nextIndex = currentIndex + 1;
-                        while (nextIndex < allInputs.length && allInputs[nextIndex].parentElement.classList.contains('black')) {
-                            nextIndex++;
-                        }
-                        if (nextIndex < allInputs.length) {
-                            allInputs[nextIndex].focus();
-                        }
-                        break;
-                    case 'ArrowLeft':
-                        nextIndex = currentIndex - 1;
-                        while (nextIndex >= 0 && allInputs[nextIndex].parentElement.classList.contains('black')) {
-                            nextIndex--;
-                        }
-                        if (nextIndex >= 0) {
-                            allInputs[nextIndex].focus();
-                        }
-                        break;
-                    case 'ArrowUp':
-                        currentRow = parseInt(this.dataset.row);
-                        currentCol = parseInt(this.dataset.col);
-                        
-                        // Find the next input in the same column but one row up
-                        nextInput = document.querySelector(
-                            `.letter[data-row="${currentRow - 1}"][data-col="${currentCol}"]`
+                    }
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault(); // Prevent cursor movement
+                    nextIndex = currentIndex + 1;
+                    while (nextIndex < allInputs.length && allInputs[nextIndex].parentElement.classList.contains('black')) {
+                        nextIndex++;
+                    }
+                    if (nextIndex < allInputs.length) {
+                        allInputs[nextIndex].focus();
+                    }
+                } else if (e.key === 'ArrowLeft') {
+                    e.preventDefault(); // Prevent cursor movement
+                    nextIndex = currentIndex - 1;
+                    while (nextIndex >= 0 && allInputs[nextIndex].parentElement.classList.contains('black')) {
+                        nextIndex--;
+                    }
+                    if (nextIndex >= 0) {
+                        allInputs[nextIndex].focus();
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault(); // Prevent cursor movement
+                    currentRow = parseInt(this.dataset.row);
+                    currentCol = parseInt(this.dataset.col);
+                    
+                    // Find the next input in the same column but one row up
+                    nextInput = document.querySelector(
+                        `.letter[data-row="${currentRow - 1}"][data-col="${currentCol}"]`
+                    );
+                    
+                    // If we found a valid input and it's not in a black cell, focus it
+                    if (nextInput && !nextInput.parentElement.classList.contains('black')) {
+                        nextInput.focus();
+                    } else {
+                        // Try two rows up if immediate row is blocked
+                        const skipRowInput = document.querySelector(
+                            `.letter[data-row="${currentRow - 2}"][data-col="${currentCol}"]`
                         );
-                        
-                        // If we found a valid input and it's not in a black cell, focus it
-                        if (nextInput && !nextInput.parentElement.classList.contains('black')) {
-                            nextInput.focus();
-                        } else {
-                            // Try two rows up if immediate row is blocked
-                            const skipRowInput = document.querySelector(
-                                `.letter[data-row="${currentRow - 2}"][data-col="${currentCol}"]`
-                            );
-                            if (skipRowInput && !skipRowInput.parentElement.classList.contains('black')) {
-                                skipRowInput.focus();
-                            }
+                        if (skipRowInput && !skipRowInput.parentElement.classList.contains('black')) {
+                            skipRowInput.focus();
                         }
-                        break;
-                    case 'ArrowDown':
-                        currentRow = parseInt(this.dataset.row);
-                        currentCol = parseInt(this.dataset.col);
-                        
-                        // Find the next input in the same column but one row down
-                        nextInput = document.querySelector(
-                            `.letter[data-row="${currentRow + 1}"][data-col="${currentCol}"]`
+                    }
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault(); // Prevent cursor movement
+                    currentRow = parseInt(this.dataset.row);
+                    currentCol = parseInt(this.dataset.col);
+                    
+                    // Find the next input in the same column but one row down
+                    nextInput = document.querySelector(
+                        `.letter[data-row="${currentRow + 1}"][data-col="${currentCol}"]`
+                    );
+                    
+                    // If we found a valid input and it's not in a black cell, focus it
+                    if (nextInput && !nextInput.parentElement.classList.contains('black')) {
+                        nextInput.focus();
+                    } else {
+                        // Try two rows down if immediate row is blocked
+                        const skipRowInput = document.querySelector(
+                            `.letter[data-row="${currentRow + 2}"][data-col="${currentCol}"]`
                         );
-                        
-                        // If we found a valid input and it's not in a black cell, focus it
-                        if (nextInput && !nextInput.parentElement.classList.contains('black')) {
-                            nextInput.focus();
-                        } else {
-                            // Try two rows down if immediate row is blocked
-                            const skipRowInput = document.querySelector(
-                                `.letter[data-row="${currentRow + 2}"][data-col="${currentCol}"]`
-                            );
-                            if (skipRowInput && !skipRowInput.parentElement.classList.contains('black')) {
-                                skipRowInput.focus();
-                            }
+                        if (skipRowInput && !skipRowInput.parentElement.classList.contains('black')) {
+                            skipRowInput.focus();
                         }
-                        break;
+                    }
+                } else if (e.key.length === 1 && /^[a-zA-Z]$/.test(e.key)) {
+                    e.preventDefault(); // Prevent cursor movement
+                    this.value = e.key.toUpperCase();
+                    nextIndex = currentIndex + 1;
+                    while (nextIndex < allInputs.length && allInputs[nextIndex].parentElement.classList.contains('black')) {
+                        nextIndex++;
+                    }
+                    if (nextIndex < allInputs.length) {
+                        allInputs[nextIndex].focus();
+                    }
+                    checkPuzzleSolved();
                 }
             });
         });
